@@ -13,11 +13,19 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     db.execute("SELECT * FROM users WHERE email = %s", (form_data.username,))
     user = db.fetchone()
-    
-    if not user or not verify_password(form_data.password, user["password"]):
+
+    if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    token = create_access_token({"sub": user["email"]}, timedelta(minutes=30))
+    if not verify_password(form_data.password, user["password"]):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+
+    try:
+        token = create_access_token({"sub": user["email"]}, timedelta(minutes=30))
+    except Exception as e:
+        print("Token creation failed:", e)
+        raise HTTPException(status_code=500, detail="Token generation failed.")
+
     return {"access_token": token, "token_type": "bearer"}
 
 @router.get("/me")
