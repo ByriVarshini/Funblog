@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+</head>
+<style>
+    body {
+        padding-top: 60px; 
+        padding-bottom: 60px; 
+    }
+
+    .top-navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        z-index: 1000;
+    }
+
+    .top-navbar .welcome-text {
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .top-navbar .icons {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .top-navbar .icons i {
+        font-size: 22px;
+        color: black;
+        cursor: pointer;
+    }
+
+    .top-navbar .profile-circle {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background-color: gray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: white;
+    }
+
+    .bottom-navbar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        z-index: 1000;
+    }
+
+    .nav-item {
+        text-align: center;
+        flex: 1;
+        color: black;
+        text-decoration: none;
+    }
+
+    .nav-item i {
+        font-size: 20px;
+        color: black;
+    }
+
+    .nav-item span {
+        display: block;
+        font-size: 12px;
+        color: black;
+    }
+
+    /* Page Content */
+    .content {
+        padding: 20px;
+    }
+
+    /* My Posts Table */
+    .table-container {
+        overflow-x: auto;
+    }
+    .notification {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        font-family: Arial, sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .notification.success {
+        background-color: #4caf50; /* Green for success */
+        border: 2px solid white;
+    }
+    .notification.error {
+        background-color: #f44336; /* Red for error */
+        border: 2px solid white;
+    }
+    .notification .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .notification .icon {
+        font-size: 20px;
+    }
+</style>
+<body>
+    <div class="top-navbar">
+        <div class="welcome-text">Welcome, <span id="username">Loading...</span></div>
+        <div class="icons">
+            <i class="bi bi-search"></i>
+            <div class="profile-circle">V</div> 
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-navbar">
+        <a href="/static/home.html" class="nav-item">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </a>
+        <a href="/static/myposts.html" class="nav-item">
+            <i class="bi bi-file-text"></i>
+            <span>My Posts</span>
+        </a>
+        <a href="/static/createpost.html" class="nav-item">
+            <i class="bi bi-plus-circle"></i>
+            <span>Create</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="bi bi-gear"></i>
+            <span>Settings</span>
+        </a>
+        <a href="#" class="nav-item text-danger" id="logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Edit Post</h2>
+        <form id="editPostForm">
+            <input type="hidden" id="post_id">  <!-- Hidden field for Post ID -->
+            
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" id="title" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="content" class="form-label">Content</label>
+                <textarea id="content" class="form-control" rows="5" required></textarea>
+            </div>
+
+            <div class="form-check mb-3">
+                <input type="checkbox" id="published" class="form-check-input">
+                <label for="published" class="form-check-label">Published</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update Post</button>
+            <a href="/static/myposts.html" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+
+    <div class="notification" id="notification" style="display:none;">
+        <span id="notificationMessage">Notification message</span>
+        <button class="close-btn" onclick="closeNotification()">✖</button>
+    </div>
+
+    <script>
+        function showNotification(message, type) {
+            const notification = document.getElementById("notification");
+            const notificationMessage = document.getElementById("notificationMessage");
+        
+            if (notification && notificationMessage) {
+                notificationMessage.textContent = message;
+                // Fix: Change this line
+                notification.className = `notification ${type}`;
+                notification.style.display = "flex"; 
+        
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 5000);
+            }
+        }
+        
+        function closeNotification() {
+            const notification = document.getElementById("notification");
+            if (notification) {
+                notification.style.display = "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get("post_id");
+        
+            if (!postId) {
+                showNotification("Invalid post ID!", "error");
+                window.location.href = "/static/home.html";
+                return;
+            }
+        
+            const token = localStorage.getItem("token");
+            if (!token) {
+                showNotification("You are not logged in! Please log in first.", "error");
+                window.location.href = "/static/login.html";
+                return;
+            }
+        
+            // First fetch user details to show username
+            try {
+                const userResponse = await fetch("https://varshu-funblog.onrender.com/auth/me", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+        
+                const userData = await userResponse.json();
+                if (!userResponse.ok) throw new Error(userData.detail || "Failed to fetch user data");
+                
+                document.getElementById("username").textContent = userData.username;
+                document.querySelector(".profile-circle").textContent = userData.username.charAt(0).toUpperCase();
+                
+                // Then fetch post details
+                const postResponse = await fetch(`https://varshu-funblog.onrender.com/posts/${postId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+        
+                const post = await postResponse.json();
+                if (!postResponse.ok) throw new Error(post.detail || "Failed to fetch post");
+        
+                // Populate the form with post data
+                document.getElementById("post_id").value = post.post_id;
+                document.getElementById("title").value = post.title;
+                document.getElementById("content").value = post.content;
+                document.getElementById("published").checked = post.published;
+        
+            } catch (error) {
+                console.error("Error:", error);
+                showNotification(`Error loading data: ${error.message}`, "error");
+                setTimeout(() => {
+                    window.location.href = "/static/myposts.html";
+                }, 3000);
+            }
+        });
+
+        document.getElementById("editPostForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const postId = document.getElementById("post_id").value;
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("content").value;
+            const published = document.getElementById("published").checked;
+            const token = localStorage.getItem("token");
+
+            try {
+                let response = await fetch(`https://varshu-funblog.onrender.com/posts/${postId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        content: content,
+                        published: published
+                    })
+                });
+
+                let result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.detail || `HTTP Error ${response.status}`);
+                }
+
+                showNotification("Post updated successfully!","success");
+                window.location.href = "/static/myposts.html";
+
+            } catch (error) {
+                console.error("Error updating post:", error);
+                showNotification(`Error updating post! ${error.message}`,"error");
+            }
+        });
+
+        document.getElementById("logout").addEventListener("click", function() {
+            localStorage.removeItem("token");
+            showNotification("Logged out successfully!","success");
+            window.location.href = "/static/login.html";
+        });
+    </script> 
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Feed</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        body {
+            padding: 0;
+        }
+        .post-card {
+            background: white;
+            padding: 10px;
+            border-radius: 0px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            position: relative;
+            transition: all 0.3s ease; 
+            cursor: pointer;
+        }
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .post-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: absolute;
+            inset: 0;
+        }
+        .post-header {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .post-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .post-content {
+            white-space: pre-line;
+        }
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .comment-section {
+            margin-top: 20px;
+        }
+        .comment {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .like-btn {
+            color: red;
+        }
+        .btn-outline-danger, .btn-outline-info {
+            border: none; 
+        }
+    </style>
+</head>
+<body>
+    <div id="feed-container"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            let token = localStorage.getItem("token");
+    
+            if (!token) {
+                alert("Unauthorized! Please login first.");
+                window.location.href = "/";
+                return;
+            }
+    
+            // Fetch posts for the feed
+            async function fetchFeedPosts() {
+                try {
+                    let response = await fetch("https://varshu-funblog.onrender.com/posts/", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    let result = await response.json();
+                    if (!response.ok) throw new Error(result.detail || "Failed to fetch posts.");
+    
+                    let feedContainer = document.getElementById("feed-container");
+                    feedContainer.innerHTML = "";
+    
+                    result.data.forEach(post => {
+                        let postCard = document.createElement("div");
+                        postCard.classList.add("post-card");
+    
+                        postCard.innerHTML = `
+                            <a href="/static/postdetail.html?post_id=${post.post_id}" class="post-link"></a>
+                            <div class="post-header">r/${post.username} • ${new Date(post.created_at).toLocaleDateString()} </div>
+                            <div class="post-title">${post.title}</div>
+                            <div class="post-content"></div>
+                            <div class="post-actions mt-2">
+                                <button class="btn btn-outline-danger btn-sm like-btn ${post.user_liked ? 'liked' : ''}" data-post-id="${post.post_id}">
+                                    <i class="bi ${post.user_liked ? 'bi-heart-fill' : 'bi-heart'}" style="color: ${post.user_liked ? 'red' : ''};"></i> 
+                                    <span class="like-count">${post.like_count || 0}</span>
+                                </button>
+                                <button class="btn btn-outline-info btn-sm comment-btn" data-post-id="${post.post_id}">
+                                    <i class="bi bi-chat"></i> 
+                                    <span class="comment-count">${post.comment_count || 0}</span>
+                                </button>
+                            </div>
+                        `;
+                        postCard.querySelector(".post-content").innerText = post.content.substring(0, 300) + "...";
+                        feedContainer.appendChild(postCard);
+                    });
+    
+                    // Attach event listeners after rendering posts
+                    attachLikeEventListeners();
+                } catch (error) {
+                    console.error(error);
+                    alert("Error fetching feed posts!");
+                }
+            }
+    
+            // Toggle like status for a post
+            async function toggleLike(postId, button) {
+                let likeCountSpan = button.querySelector(".like-count");
+                let icon = button.querySelector("i");
+                let isLiked = button.classList.contains("liked");
+    
+                // Optimistically update the UI
+                if (isLiked) {
+                    button.classList.remove("liked");
+                    icon.classList.remove("bi-heart-fill");
+                    icon.classList.add("bi-heart");
+                    icon.style.color = "";
+                    likeCountSpan.innerText = parseInt(likeCountSpan.innerText) - 1;
+                } else {
+                    button.classList.add("liked");
+                    icon.classList.remove("bi-heart");
+                    icon.classList.add("bi-heart-fill");
+                    icon.style.color = "red";
+                    likeCountSpan.innerText = parseInt(likeCountSpan.innerText) + 1;
+                }
+    
+                try {
+                    let response = await fetch(`https://varshu-funblog.onrender.com/posts/${postId}/like`, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+    
+                    let result = await response.json();
+                    if (!response.ok) throw new Error(result.detail || "Failed to toggle like.");
+    
+                    // Update the like count from the server response
+                    likeCountSpan.innerText = result.likes;
+                } catch (error) {
+                    console.error(error);
+                    alert("Error toggling like!");
+    
+                    // Revert the optimistic UI update in case of an error
+                    if (isLiked) {
+                        button.classList.add("liked");
+                        icon.classList.remove("bi-heart");
+                        icon.classList.add("bi-heart-fill");
+                        icon.style.color = "red";
+                        likeCountSpan.innerText = parseInt(likeCountSpan.innerText) + 1;
+                    } else {
+                        button.classList.remove("liked");
+                        icon.classList.remove("bi-heart-fill");
+                        icon.classList.add("bi-heart");
+                        icon.style.color = "";
+                        likeCountSpan.innerText = parseInt(likeCountSpan.innerText) - 1;
+                    }
+                }
+            }
+    
+            // Attach event listeners to like buttons
+            function attachLikeEventListeners() {
+                document.querySelectorAll(".like-btn").forEach(button => {
+                    button.addEventListener("click", async (event) => {
+                        event.preventDefault();
+                        let postId = button.getAttribute("data-post-id");
+                        await toggleLike(postId, button);
+                    });
+                });
+            }
+    
+            // Initial fetch of feed posts
+            fetchFeedPosts();
+        });
+    </script>
+</body>
+</html>
