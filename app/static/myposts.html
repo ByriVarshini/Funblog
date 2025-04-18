@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Posts</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        body {
+            padding-top: 60px; 
+            padding-bottom: 60px; 
+        }
+
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            z-index: 1000;
+        }
+
+        .top-navbar .welcome-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+        }
+
+        .top-navbar .icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-navbar .icons i {
+            font-size: 22px;
+            color: black;
+            cursor: pointer;
+        }
+
+        .top-navbar .profile-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: gray;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            flex: 1;
+            color: black;
+            text-decoration: none;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            color: black;
+        }
+
+        .nav-item span {
+            display: block;
+            font-size: 12px;
+            color: black;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .post-actions button {
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        .options-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .dropdown-menu {
+            min-width: 100px;
+        }
+        .dropdown-toggle::after {
+            display: none !important;
+        }
+        /* Notification styles */
+        .notification {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .notification.success {
+            background-color: #4caf50; /* Green for success */
+            border: 2px solid white;
+        }
+        .notification.error {
+            background-color: #f44336; /* Red for error */
+            border: 2px solid white;
+        }
+        .notification .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .notification .icon {
+            font-size: 20px;
+        }
+        .settings-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 1000;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-navbar">
+        <div class="welcome-text">Welcome, <span id="username">Loading...</span></div>
+        <div class="icons">
+            <div class="profile-circle">V</div> 
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-navbar">
+        <a href="/static/home.html" class="nav-item">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </a>
+        <a href="/static/myposts.html" class="nav-item">
+            <i class="bi bi-file-text"></i>
+            <span>My Posts</span>
+        </a>
+        <a href="/static/createpost.html" class="nav-item">
+            <i class="bi bi-plus-circle"></i>
+            <span>Create</span>
+        </a>
+        <a href="#" class="nav-item" id="settings-btn">
+            <i class="bi bi-gear"></i>
+            <span>Settings</span>
+        </a>
+        <a href="/static/index.html" class="nav-item text-danger" id="logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+    <br>
+    <div class="container">
+        <h2>My Posts</h2>
+        <div id="posts-container"></div>
+    </div>
+
+    <div class="notification" id="notification" style="display:none;">
+        <span id="notificationMessage">Notification message</span>
+        <button class="close-btn" onclick="closeNotification()">✖</button>
+    </div>
+    <div id="settings-sidebar" class="settings-sidebar" style="display: none;">
+        <div class="sidebar-header">
+            <h5>Settings</h5>
+            <button id="close-sidebar" class="btn-close"></button>
+        </div>
+        <form id="settings-form">
+            <div class="mb-3">
+                <p>Want to change password??</p>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Enter new password">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            let token = localStorage.getItem("token");
+        
+            if (!token) {
+                showNotification("Unauthorized! Please login first.","error");
+                window.location.href = "/";
+                return;
+            }
+
+            async function fetchUserDetails() {
+                try {
+                    let response = await fetch("http://127.0.0.1:8000/auth/me", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    let user = await response.json();
+                    if (!response.ok) throw new Error(user.detail || "Failed to fetch user details.");
+
+                    document.getElementById("username").innerText = user.username;
+                    document.querySelector(".profile-circle").innerText = user.username.charAt(0).toUpperCase();
+                } catch (error) {
+                    console.error(error);
+                    showNotification("Session expired! Please log in again.","error");
+                    localStorage.removeItem("token");
+                    window.location.href = "/";
+                }
+            }
+            await fetchUserDetails();
+        });
+        document.addEventListener("DOMContentLoaded", async function () {
+            let token = localStorage.getItem("token");
+            if (!token) {
+                showNotification("Unauthorized! Please login first.","error");
+                window.location.href = "/";
+                return;
+            }
+
+            async function fetchUserPosts() {
+                try {
+                    let response = await fetch("http://127.0.0.1:8000/posts/myposts", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+            
+                    let result = await response.json();
+                    if (!response.ok) {
+                        console.error("Server Response:", result);
+                        throw new Error(result.detail || "Failed to fetch posts.");
+                    }
+            
+                    let postsContainer = document.getElementById("posts-container");
+                    postsContainer.innerHTML = ""; // Clear existing posts
+            
+                    result.my_posts.forEach(post => {
+                        let postHTML = `
+                            <div class="post-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <a href="/static/postdetail.html?post_id=${post.post_id}" class="text-decoration-none text-dark flex-grow-1">
+                                        <h5><strong>${post.title}</strong></h5>
+                                        <p>${post.content.substring(0, 100)}...</p>
+                                    </a>
+                                    <div class="dropdown options-menu">
+                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item edit-btn" data-id="${post.post_id}" href="#">Edit</a></li>
+                                            <li><a class="dropdown-item delete-btn" data-id="${post.post_id}" href="#">Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        postsContainer.innerHTML += postHTML;
+                    });
+
+            
+                    attachEventListeners(); // Attach event listeners after rendering posts
+                } catch (error) {
+                    console.error(error);
+                    showNotification("No posts found...try creating one!","error");
+                }
+            }
+            
+
+            function attachEventListeners() {
+                document.querySelectorAll(".delete-btn").forEach(button => {
+                    button.addEventListener("click", async (event) => {
+                        event.preventDefault(); // Prevent navigation
+                        let postId = event.target.getAttribute("data-id");
+                        if (confirm("Are you sure you want to delete this post?")) {
+                            await deletePost(postId);
+                        }
+                    });
+                });
+
+                document.querySelectorAll(".edit-btn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        event.preventDefault(); // Prevent navigation
+                        let postId = event.target.getAttribute("data-id");
+                        window.location.href = `/static/editpost.html?post_id=${postId}`;
+                    });
+                });
+            }
+
+            
+
+            async function deletePost(postId) {
+                try {
+                    let response = await fetch(`http://127.0.0.1:8000/posts/${postId}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+            
+                    if (!response.ok) {
+                        let result = await response.json();
+                        throw new Error(result.detail || "Failed to delete post.");
+                    }
+            
+                    showNotification("Post deleted successfully!","success"); // Use notification instead of alert
+                    fetchUserPosts(); // Refresh posts after deletion
+                } catch (error) {
+                    console.error(error);
+                    showNotification("Error deleting post!","success"); // Use notification instead of alert
+                }
+            }
+
+            fetchUserPosts();
+            function showNotification(message, type) {
+                const notification = document.getElementById("notification");
+                const notificationMessage = document.getElementById("notificationMessage");
+            
+                if (notification && notificationMessage) {
+                    notificationMessage.textContent = message;
+                    notification.className = `notification ${type}`; // Add the type class (info, success, error)
+                    notification.style.display = "flex"; // Show the notification
+            
+                    // Automatically hide the notification after 5 seconds
+                    setTimeout(() => {
+                        notification.style.display = "none";
+                    }, 5000);
+                }
+            }
+            
+            function closeNotification() {
+                const notification = document.getElementById("notification");
+                if (notification) {
+                    notification.style.display = "none";
+                }
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>

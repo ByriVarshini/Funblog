@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Blog Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        body {
+            padding-top: 60px; 
+            padding-bottom: 60px; 
+        }
+
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            z-index: 1000;
+        }
+
+        .top-navbar .welcome-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+        }
+
+        .top-navbar .icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-navbar .icons i {
+            font-size: 22px;
+            color: black;
+            cursor: pointer;
+        }
+
+        .top-navbar .profile-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: gray;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            flex: 1;
+            color: black;
+            text-decoration: none;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            color: black;
+        }
+
+        .nav-item span {
+            display: block;
+            font-size: 12px;
+            color: black;
+        }
+        .content {
+            padding: 20px;
+        }
+
+        /* My Posts Table */
+        .table-container {
+            overflow-x: auto;
+        }
+        .settings-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 1000;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="top-navbar">
+        <div class="welcome-text">Welcome, <span id="username">Loading...</span></div>
+        <div class="icons">
+            <div class="profile-circle">V</div> 
+            
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-navbar">
+        <a href="/static/home.html" class="nav-item">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </a>
+        <a href="/static/myposts.html" class="nav-item">
+            <i class="bi bi-file-text"></i>
+            <span>My Posts</span>
+        </a>
+        <a href="/static/createpost.html" class="nav-item">
+            <i class="bi bi-plus-circle"></i>
+            <span>Create</span>
+        </a>
+        
+        <a href="#" class="nav-item" id="settings-btn">
+            <i class="bi bi-gear"></i>
+            <span>Settings</span>
+        </a>
+        </a>
+        <a href="/static/index.html" class="nav-item text-danger" id="logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+    <div id="settings-sidebar" class="settings-sidebar" style="display: none;">
+        <div class="sidebar-header">
+            <h5>Settings</h5>
+            <button id="close-sidebar" class="btn-close"></button>
+        </div>
+        <form id="settings-form">
+            <div class="mb-3">
+                <p>Want to change password??</p>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Enter new password">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+    <iframe src="/static/myfeed.html" style="width:100%; height:100vh; border:none;"></iframe>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            let token = localStorage.getItem("token");
+        
+            if (!token) {
+                alert("Unauthorized! Please login first.");
+                window.location.href = "/";
+                return;
+            }
+
+            async function fetchUserDetails() {
+                try {
+                    let response = await fetch("http://127.0.0.1:8000/auth/me", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    let user = await response.json();
+                    if (!response.ok) throw new Error(user.detail || "Failed to fetch user details.");
+
+                    document.getElementById("username").innerText = user.username;
+                    document.querySelector(".profile-circle").innerText = user.username.charAt(0).toUpperCase();
+                } catch (error) {
+                    console.error(error);
+                    alert("Session expired! Please log in again.");
+                    localStorage.removeItem("token");
+                    window.location.href = "/";
+                }
+            }
+            await fetchUserDetails();
+        });
+        
+    </script>
+    
+    <script src="/static/script.js"></script>
+</body>
+</html>
