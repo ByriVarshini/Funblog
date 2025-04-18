@@ -21,7 +21,7 @@ from psycopg2.extras import RealDictCursor
 
 def get_db():
     conn = connect(
-        "postgresql://postgres:funblog@db.hbmjmbgbuxhygzrdkeuj.supabase.co:5432/postgres",
+        "postgresql://postgres.hbmjmbgbuxhygzrdkeuj:funblog@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres",
         cursor_factory=RealDictCursor
     )
     try:
