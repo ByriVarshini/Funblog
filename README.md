@@ -39,29 +39,6 @@ FunBlog is a modern, responsive blogging web application built with **FastAPI** 
 | Auth         | JWT (JSON Web Token)   |
 | ORM          | SQLAlchemy           
 
----
-
-## 📁 Folder Structure
-
-```
-funblog/
-│
-├── app/
-│   ├── main.py
-│   ├── models.py
-│   ├── routes/
-│   ├── schemas/
-│   └── utils/
-│
-├── static/
-├── templates/
-├── requirements.txt
-├── README.md
-└── .env
-```
-
----
-
 ## ⚙️ Setup Instructions
 
 ### Prerequisites
@@ -100,15 +77,3 @@ ALGORITHM=HS256
 ```bash
 uvicorn app.main:app --reload
 ```
-
-
-## 💡 Author
-
-**Varshini**  
-[GitHub](https://github.com/yourusername)
-
----
-
-```
-
-Let me know if you'd like the `requirements.txt` generated or need help adding screenshots.
