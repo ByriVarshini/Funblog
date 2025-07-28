@@ -238,7 +238,7 @@
         
             // First fetch user details to show username
             try {
-                const userResponse = await fetch("https://funblog-h6hu.onrender.com/auth/me", {
+                const userResponse = await fetch("http://127.0.0.1:8000/auth/me", {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,
@@ -253,7 +253,7 @@
                 document.querySelector(".profile-circle").textContent = userData.username.charAt(0).toUpperCase();
                 
                 // Then fetch post details
-                const postResponse = await fetch(`https://funblog-h6hu.onrender.com/posts/${postId}`, {
+                const postResponse = await fetch(`http://127.0.0.1:8000/posts/${postId}`, {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,
@@ -289,7 +289,7 @@
             const token = localStorage.getItem("token");
 
             try {
-                let response = await fetch(`https://funblog-h6hu.onrender.com/posts/${postId}`, {
+                let response = await fetch(`http://127.0.0.1:8000/posts/${postId}`, {
                     method: "PUT",
                     headers: {
                         "Authorization": `Bearer ${token}`,
