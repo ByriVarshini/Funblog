@@ -245,7 +245,7 @@
 
             async function fetchUserDetails() {
                 try {
-                    let response = await fetch("https://funblog-h6hu.onrender.com/auth/me", {
+                    let response = await fetch("http://127.0.0.1:8000/auth/me", {
                         method: "GET",
                         headers: {
                             "Authorization": `Bearer ${token}`,
@@ -277,7 +277,7 @@
 
             async function fetchUserPosts() {
                 try {
-                    let response = await fetch("https://funblog-h6hu.onrender.com/posts/myposts", {
+                    let response = await fetch("http://127.0.0.1:8000/posts/myposts", {
                         method: "GET",
                         headers: {
                             "Authorization": `Bearer ${token}`,
@@ -350,7 +350,7 @@
 
             async function deletePost(postId) {
                 try {
-                    let response = await fetch(`https://funblog-h6hu.onrender.com/posts/${postId}`, {
+                    let response = await fetch(`http://127.0.0.1:8000/posts/${postId}`, {
                         method: "DELETE",
                         headers: {
                             "Authorization": `Bearer ${token}`,
