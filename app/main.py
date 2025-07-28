@@ -4,21 +4,21 @@ from fastapi.staticfiles import StaticFiles
 from app.routers import post, user, auth_routes, protected
 from fastapi.middleware.cors import CORSMiddleware
 import os
-from supabase import create_client, Client
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=[
+        "http://127.0.0.1:8000",   # Local frontend
+        "http://localhost:8000",   # Just in case
+        "https://varshu-funblog.onrender.com"  # Replace with your actual deployed frontend URL if needed
+    ], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-SUPABASE_URL = "https://hbmjmbgbuxhygzrdkeuj.supabase.co"
-SUPABASE_KEY = "yeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhibWptYmdidXhoeWd6cmRrZXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ3MTE5OTksImV4cCI6MjA2MDI4Nzk5OX0.W3C0f52r1ZPMDNIAkxG-SPaLe4KzxTi6u40VlFcWZ9Q"
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Mount the static folder for serving CSS/JS files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
