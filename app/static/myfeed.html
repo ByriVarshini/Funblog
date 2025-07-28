@@ -86,7 +86,7 @@
             // Fetch posts for the feed
             async function fetchFeedPosts() {
                 try {
-                    let response = await fetch("https://funblog-h6hu.onrender.com/posts/", {
+                    let response = await fetch("http://127.0.0.1:8000/posts/", {
                         method: "GET",
                         headers: {
                             "Authorization": `Bearer ${token}`,
@@ -153,7 +153,7 @@
                 }
     
                 try {
-                    let response = await fetch(`https://funblog-h6hu.onrender.com/posts/${postId}/like`, {
+                    let response = await fetch(`http://127.0.0.1:8000/posts/${postId}/like`, {
                         method: "POST",
                         headers: {
                             "Authorization": `Bearer ${token}`,
