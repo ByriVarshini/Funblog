@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://funblog-h6hu.onrender.com/";
 // Function to show notifications
 function showNotification(message, type) {
     const notification = document.getElementById("notification");
