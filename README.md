@@ -2,6 +2,9 @@
 # 📝 FunBlog – A Full-Stack Blogging Platform
 
 FunBlog is a modern, responsive blogging web application built with **FastAPI** and **PostgreSQL**. It provides a seamless interface for users to register, log in, create, edit, and delete blog posts. Admins have additional privileges to manage content and users.
+# Pics of the Web Application
+<img width="1905" height="861" alt="Screenshot 2025-07-28 210035" src="https://github.com/user-attachments/assets/390bc355-36d4-4fd1-b39f-deba40fec8f0" />
+
 
 ## 🚀 Features
 
