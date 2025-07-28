@@ -181,7 +181,7 @@
 
             async function fetchUserDetails() {
                 try {
-                    let response = await fetch("https://funblog-h6hu.onrender.com/auth/me", {
+                    let response = await fetch("http://127.0.0.1:8000/auth/me", {
                         method: "GET",
                         headers: {
                             "Authorization": `Bearer ${token}`,
